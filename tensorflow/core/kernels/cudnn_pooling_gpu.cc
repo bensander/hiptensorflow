@@ -96,7 +96,7 @@ void DnnPooling3dOp<T>::Compute(
   CudnnScratchAllocator scratch_allocator(PoolingScratchSize, context);
   bool status = stream
                     ->ThenPoolForward(pooling_desc, input_desc, input_data,
-                                      output_desc, &output_data,
+                                      output_desc, &output_data, nullptr/*reserve*/,
                                       &scratch_allocator)
                     .ok();
   OP_REQUIRES(context, status,

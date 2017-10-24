@@ -1221,6 +1221,7 @@ class DnnSupport {
                              const DeviceMemory<float>& input_data,
                              const dnn::BatchDescriptor& output_dimensions,
                              DeviceMemory<float>* output_data,
+                             DeviceMemory<float>* reserve_data,
                              ScratchAllocator* workspace_allocator = nullptr) = 0;
 
   virtual bool DoPoolForward(Stream* stream,

@@ -414,6 +414,7 @@ def _AvgPoolGrad(op, grad):
 def _MaxPoolGrad(op, grad):
   return gen_nn_ops._max_pool_grad(op.inputs[0],
                                    op.outputs[0],
+                                   #op.outputs[1], # MIOpen workspace from fwd-op
                                    grad,
                                    op.get_attr("ksize"),
                                    op.get_attr("strides"),

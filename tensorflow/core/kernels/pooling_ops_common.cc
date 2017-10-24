@@ -130,6 +130,10 @@ void DnnPoolingOp<T>::Compute(
   Tensor* tensor_out = nullptr;
   OP_REQUIRES_OK(context,
                  context->allocate_output(0, tensor_out_shape, &tensor_out));
+  Tensor* reserve_out = nullptr;
+  OP_REQUIRES_OK(context, 
+                 context->allocate_output(1, tensor_out_shape, &reserve_out));
+  std::cout << "pooling not reserve shape=" <<  tensor_out->template flat<T>().size() << "\n";
 
   PoolParameters params{context, size,        stride,
                         padding, data_format, tensor_in.shape()};
@@ -192,6 +196,9 @@ void DnnPoolingOp<T>::Compute(
   auto output_data =
       AsDeviceMemory(transformed_output.template flat<T>().data(),
                      transformed_output.template flat<T>().size());
+  auto reserve_data =
+      AsDeviceMemory(reserve_out->template flat<T>().data(),
+                     reserve_out->template flat<T>().size());
 
   auto* stream = context->op_device_context()->stream();
   OP_REQUIRES(context, stream, errors::Internal("No GPU stream available."));
@@ -204,7 +211,7 @@ void DnnPoolingOp<T>::Compute(
   CudnnScratchAllocator scratch_allocator(PoolingScratchSize, context);
   bool status = stream
                     ->ThenPoolForward(pooling_desc, input_desc, input_data,
-                                      output_desc, &output_data,
+                                      output_desc, &output_data, &reserve_data,
                                       &scratch_allocator)
                     .ok();
   OP_REQUIRES(context, status,

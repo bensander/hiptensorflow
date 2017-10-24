@@ -1790,7 +1790,7 @@ def max_pool(value, ksize, strides, padding, data_format="NHWC", name=None):
                                 strides=strides,
                                 padding=padding,
                                 data_format=data_format,
-                                name=name)
+                                name=name)[0]
 
 
 @ops.RegisterStatistics("Conv2D", "flops")

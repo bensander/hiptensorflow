@@ -262,6 +262,7 @@ class MaxPoolingGradOp : public OpKernel {
     const Tensor& tensor_in = context->input(0);
     const Tensor& tensor_out = context->input(1);
     const Tensor& out_backprop = context->input(2);
+    const Tensor& reserve = context->input(3);
 
     // For maxpooling, tensor_in should have 4 dimensions.
     OP_REQUIRES(context, tensor_in.dims() == 4,
@@ -271,6 +272,9 @@ class MaxPoolingGradOp : public OpKernel {
     // For maxpooling, out_backprop should have 4 dimensions.
     OP_REQUIRES(context, out_backprop.dims() == 4,
                 errors::InvalidArgument("out_backprop must be 4-dimensional"));
+
+    OP_REQUIRES(context, reserve.dims() == 4,
+                errors::InvalidArgument("reserve must be 4-dimensional"));
 
     const TensorShape& output_shape = tensor_in.shape();
 

@@ -1235,6 +1235,7 @@ REGISTER_OP("MaxPool")
     .Attr(GetConvnetDataFormatAttrString())
     .Input("input: T")
     .Output("output: T")
+    .Output("reserve_1: T")
     .SetShapeFn(shape_inference::MaxPoolShape)
     .Doc(R"doc(
 Performs max pooling on the input.
@@ -1260,6 +1261,7 @@ REGISTER_OP("MaxPoolGrad")
     .Input("orig_input: T")
     .Input("orig_output: T")
     .Input("grad: T")
+    .Input("reserve_1: T")
     .Output("output: T")
     .Attr("T: {float, half} = DT_FLOAT")
     .SetShapeFn([](InferenceContext* c) {

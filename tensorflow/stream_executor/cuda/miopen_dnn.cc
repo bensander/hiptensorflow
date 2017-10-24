@@ -2930,6 +2930,7 @@ bool CudnnSupport::DoPoolForward(
     const DeviceMemory<float>& input_data,
     const dnn::BatchDescriptor& output_dimensions,
     DeviceMemory<float>* output_data,
+    DeviceMemory<float>* reserve_data,
     ScratchAllocator* workspace_allocator) {
     
   mutex_lock lock{dnn_handle_mutex_};
@@ -2955,6 +2956,9 @@ bool CudnnSupport::DoPoolForward(
   size_t workspace_size_in_bytes = 0;
   status = dynload::miopenPoolingGetWorkSpaceSize(parent_, dest_desc.handle(),
                                                   &workspace_size_in_bytes);
+
+  printf ("pooling workspace_size=%zu\n", workspace_size_in_bytes);
+  
 
   if (status != miopenStatusSuccess) {
     LOG(ERROR) << "failed to obtain workspace size for backward pooling on stream: "
