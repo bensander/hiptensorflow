@@ -952,7 +952,7 @@ Stream &Stream::ThenPoolForward(
     const DeviceMemory<float> &input_data,
     const dnn::BatchDescriptor &output_dimensions,
     DeviceMemory<float> *output_data,
-    DeviceMemory<float> *reserve_data,
+    DeviceMemory<float> *reserve_1_data,,
     ScratchAllocator *workspace_allocator) {
   VLOG_CALL(PARAM(pooling_dimensions), PARAM(input_dimensions),
             PARAM(input_data), PARAM(output_dimensions), PARAM(output_data));
@@ -961,7 +961,7 @@ Stream &Stream::ThenPoolForward(
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(dnn->DoPoolForward(this, pooling_dimensions, input_dimensions,
                                     input_data, output_dimensions,
-                                    output_data, reserve_data, workspace_allocator));
+                                    output_data, reserve_1_data,, workspace_allocator));
     } else {
       SetError();
       LOG(WARNING)
@@ -978,7 +978,7 @@ Stream &Stream::ThenPoolForward(
     const DeviceMemory<Eigen::half> &input_data,
     const dnn::BatchDescriptor &output_dimensions,
     DeviceMemory<Eigen::half> *output_data,
-    DeviceMemory<Eigen::half> *reserve_data,
+    DeviceMemory<Eigen::half> *reserve_1_data,,
     ScratchAllocator *workspace_allocator) {
   VLOG_CALL(PARAM(pooling_dimensions), PARAM(input_dimensions),
             PARAM(input_data), PARAM(output_dimensions), PARAM(output_data));
@@ -1005,6 +1005,7 @@ Stream &Stream::ThenPoolBackward(
     const dnn::BatchDescriptor &output_dimensions,
     const DeviceMemory<float> &output_data,
     const DeviceMemory<float> &input_diff_data,
+    const DeviceMemory<float> &reserve_1_data,,,
     DeviceMemory<float> *output_diff_data,
     ScratchAllocator *workspace_allocator) {
   VLOG_CALL(PARAM(pooling_dimensions), PARAM(input_dimensions),
@@ -1034,6 +1035,7 @@ Stream &Stream::ThenPoolBackward(
     const dnn::BatchDescriptor &output_dimensions,
     const DeviceMemory<Eigen::half> &output_data,
     const DeviceMemory<Eigen::half> &input_diff_data,
+    const DeviceMemory<Eigen::half> &reserve_1_data,,
     DeviceMemory<Eigen::half> *output_diff_data,
     ScratchAllocator *workspace_allocator) {
   VLOG_CALL(PARAM(pooling_dimensions), PARAM(input_dimensions),

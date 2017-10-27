@@ -262,7 +262,6 @@ class MaxPoolingGradOp : public OpKernel {
     const Tensor& tensor_in = context->input(0);
     const Tensor& tensor_out = context->input(1);
     const Tensor& out_backprop = context->input(2);
-    const Tensor& reserve = context->input(3);
 
     // For maxpooling, tensor_in should have 4 dimensions.
     OP_REQUIRES(context, tensor_in.dims() == 4,
@@ -272,9 +271,6 @@ class MaxPoolingGradOp : public OpKernel {
     // For maxpooling, out_backprop should have 4 dimensions.
     OP_REQUIRES(context, out_backprop.dims() == 4,
                 errors::InvalidArgument("out_backprop must be 4-dimensional"));
-
-    OP_REQUIRES(context, reserve.dims() == 4,
-                errors::InvalidArgument("reserve must be 4-dimensional"));
 
     const TensorShape& output_shape = tensor_in.shape();
 
@@ -374,6 +370,7 @@ class MaxPoolingGradOp<Eigen::GpuDevice, T> : public OpKernel {
     const Tensor& tensor_in = context->input(0);
     const Tensor& tensor_out = context->input(1);
     const Tensor& out_backprop = context->input(2);
+    const Tensor& reserve_1 = context->input(3);
 
     // For maxpooling, tensor_in should have 4 dimensions.
     OP_REQUIRES(context, tensor_in.dims() == 4,
@@ -383,6 +380,8 @@ class MaxPoolingGradOp<Eigen::GpuDevice, T> : public OpKernel {
     // For maxpooling, out_backprop should have 4 dimensions.
     OP_REQUIRES(context, out_backprop.dims() == 4,
                 errors::InvalidArgument("out_backprop must be 4-dimensional"));
+    OP_REQUIRES(context, reserve_1.dims() == 4,
+                errors::InvalidArgument("reserve_1 must be 4-dimensional"));
 
     TensorShape output_shape = tensor_in.shape();
 
@@ -390,7 +389,7 @@ class MaxPoolingGradOp<Eigen::GpuDevice, T> : public OpKernel {
       DnnPoolingGradOp<T>::Compute(
           context, perftools::gputools::dnn::PoolingMode::kMaximum, ksize_,
           stride_, padding_, data_format_, &tensor_in, &tensor_out,
-          out_backprop, output_shape);
+          &reserve_1, out_backprop, output_shape);
     } else {
       CHECK(data_format_ == FORMAT_NHWC)
           << "Non-Cudnn MaxPoolGrad only supports NHWC format";
@@ -617,6 +616,8 @@ class MaxPoolingNoMaskOp<GPUDevice, T> : public OpKernel {
           << "Non-Cudnn MaxPool only supports NHWC format";
       Tensor* output = nullptr;
       OP_REQUIRES_OK(context, context->allocate_output(0, out_shape, &output));
+      Tensor* reserve_1 = nullptr;
+      OP_REQUIRES_OK(context, context->allocate_output(1, TensorShape({0,0}), &reserve_1));
       LaunchMaxPoolingNoMask<Device, T>::launch(context, params, tensor_in,
                                                 output);
     }

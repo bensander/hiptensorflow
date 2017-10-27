@@ -59,7 +59,8 @@ class DnnPoolingGradOp {
                       const std::vector<int32>& size,
                       const std::vector<int32>& stride, Padding padding,
                       TensorFormat data_format, const Tensor* tensor_in,
-                      const Tensor* tensor_out, const Tensor& out_backprop,
+                      const Tensor* tensor_out, const Tensor* reserve_1, 
+                      const Tensor& out_backprop,
                       const TensorShape& tensor_in_shape);
 };
 

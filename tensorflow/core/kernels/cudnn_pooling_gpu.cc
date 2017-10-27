@@ -211,7 +211,8 @@ void DnnPooling3dGradOp<T>::Compute(
       stream
           ->ThenPoolBackward(pooling_desc, orig_input_desc, orig_input_data,
                              orig_output_desc, orig_output_data,
-                             output_backprop_data, &input_backprop_data,
+                             output_backprop_data, nullptr, /*reserve_1*/
+                             &input_backprop_data,
                              &scratch_allocator)
           .ok();
   OP_REQUIRES(context, status,

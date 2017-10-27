@@ -133,7 +133,7 @@ void DnnPoolingOp<T>::Compute(
   Tensor* reserve_out = nullptr;
   OP_REQUIRES_OK(context, 
                  context->allocate_output(1, tensor_out_shape, &reserve_out));
-  std::cout << "pooling not reserve shape=" <<  tensor_out->template flat<T>().size() << "\n";
+  std::cout << "DnnPoolingOp reserve_1 shape=" <<  tensor_out->template flat<T>().size() << "\n";
 
   PoolParameters params{context, size,        stride,
                         padding, data_format, tensor_in.shape()};
@@ -233,12 +233,16 @@ void DnnPoolingGradOp<T>::Compute(
     perftools::gputools::dnn::PoolingMode pooling_mode,
     const std::vector<int32>& size, const std::vector<int32>& stride,
     Padding padding, TensorFormat data_format, const Tensor* tensor_in,
-    const Tensor* tensor_out, const Tensor& out_backprop,
+    const Tensor* tensor_out, const Tensor* reserve_1,
+    const Tensor& out_backprop,
     const TensorShape& tensor_in_shape) {
   CHECK((pooling_mode != perftools::gputools::dnn::PoolingMode::kMaximum) ||
         (tensor_in && tensor_out))
       << "For MaxPoolGrad, both tensor_in and tensor_out needs to be "
          "specified";
+
+
+  std::cout << "DnnPoolingGradOp reserve_1 size==" <<  reserve_1->template flat<T>().size() << "\n";
 
   Tensor* input_backprop = nullptr;
   OP_REQUIRES_OK(context,
@@ -349,6 +353,9 @@ void DnnPoolingGradOp<T>::Compute(
   auto output_backprop_data =
       AsDeviceMemory(transformed_output_backprop.template flat<T>().data(),
                      transformed_output_backprop.template flat<T>().size());
+  auto reserve_1_data =
+      AsDeviceMemory(reserve_1->template flat<T>().data(),
+                     reserve_1->template flat<T>().size());
   auto input_backprop_data =
       AsDeviceMemory(transformed_input_backprop.template flat<T>().data(),
                      transformed_input_backprop.template flat<T>().size());
@@ -366,7 +373,8 @@ void DnnPoolingGradOp<T>::Compute(
       stream
           ->ThenPoolBackward(pooling_desc, orig_input_desc, orig_input_data,
                              orig_output_desc, orig_output_data,
-                             output_backprop_data, &input_backprop_data,
+                             output_backprop_data, reserve_1_data,
+                             &input_backprop_data,
                              &scratch_allocator)
           .ok();
   OP_REQUIRES(context, status,

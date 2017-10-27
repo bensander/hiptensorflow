@@ -408,7 +408,8 @@ class AvgPoolingGradOp<GPUDevice, T> : public OpKernel {
 
     DnnPoolingGradOp<T>::Compute(
         context, perftools::gputools::dnn::PoolingMode::kAverage, ksize_,
-        stride_, padding_, data_format_, nullptr, nullptr, out_backprop,
+        stride_, padding_, data_format_, nullptr, nullptr, 
+        nullptr/*reserve_1*/, out_backprop, 
         output_shape);
   }
 
@@ -532,7 +533,8 @@ class AvgPoolingGradOpCustomGPUKernel : public OpKernel {
     } else {
       DnnPoolingGradOp<T>::Compute(
           context, perftools::gputools::dnn::PoolingMode::kAverage, ksize_,
-          stride_, padding_, data_format_, nullptr, nullptr, out_backprop,
+          stride_, padding_, data_format_, nullptr, nullptr, 
+          nullptr/*reserve_1*/, out_backprop,
           output_shape);
     }
   }
